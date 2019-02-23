@@ -70,7 +70,7 @@ Used `<project root>/doc/Doxyfile.in` as project configuration.
 
 ### SetupConan
 
-Helper to setup dependencies with conan package manager. On configuration state toolchain is passed to `conan install ...` command.
+Helper to setup dependencies with conan package manager. On configuration stage toolchain is passed to `conan install ...` command. This way the one can get dependencies setup just by executing cmake configuration, e.g. `cmake ..`
 
 ```cmake
 include(SetupConan)
