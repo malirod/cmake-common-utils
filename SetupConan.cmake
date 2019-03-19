@@ -13,20 +13,40 @@ list(GET VERSION_LIST 2 COMPILER_VERSION_PATCH)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     message(STATUS "Setup dependencies with conan (clang ${COMPILER_VERSION_MAJOR}.${COMPILER_VERSION_MINOR})")
-    set(CONAN_COMPILER "clang")
+    set(INSTALL_ARGS
+        -s compiler=clang
+        -s compiler.version=${COMPILER_VERSION_MAJOR}.${COMPILER_VERSION_MINOR}
+        -s compiler.libcxx=libstdc++11
+        -s build_type=Release
+        -e CXX=${CMAKE_CXX_COMPILER}
+        -e CC=${CMAKE_C_COMPILER}
+        --build missing)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     message(STATUS "Setup dependencies with conan (gcc ${COMPILER_VERSION_MAJOR}.${COMPILER_VERSION_MINOR})")
-    set(CONAN_COMPILER "gcc")
+    set(INSTALL_ARGS
+        -s compiler=gcc
+        -s compiler.version=${COMPILER_VERSION_MAJOR}.${COMPILER_VERSION_MINOR}
+        -s compiler.libcxx=libstdc++11
+        -s build_type=Release
+        -e CXX=${CMAKE_CXX_COMPILER}
+        -e CC=${CMAKE_C_COMPILER}
+        --build missing)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    message(STATUS "Setup dependencies with conan (apple clang ${COMPILER_VERSION_MAJOR}.${COMPILER_VERSION_MINOR})")
+    set(INSTALL_ARGS --build missing)
 else()
     # break cmake execution
     set(CONAN_INSTALL_CMD "conan install .. <list-of-settings>")
     message(FATAL_ERROR "Dependencies are not configured. Install dependencies first, e.g. running in build dir: ${CONAN_INSTALL_CMD}")
 endif()
+
 message(STATUS "Using the following toolchain for conan: CXX=${CMAKE_CXX_COMPILER}, CC=${CMAKE_C_COMPILER}")
-set(CONAN_INSTALL_CMD conan install ${CMAKE_CURRENT_SOURCE_DIR} -if ${CMAKE_BINARY_DIR} -s arch=x86_64 -s os=Linux -s compiler=${CONAN_COMPILER} -s compiler.version=${COMPILER_VERSION_MAJOR}.${COMPILER_VERSION_MINOR} -s compiler.libcxx=libstdc++11 -s build_type=Release -e CXX=${CMAKE_CXX_COMPILER} -e CC=${CMAKE_C_COMPILER} --build missing)
+
+set(CONAN_INSTALL_CMD conan install ${CMAKE_CURRENT_SOURCE_DIR} -if ${CMAKE_BINARY_DIR} ${INSTALL_ARGS})
 string(REPLACE ";" " " CONAN_INSTALL_CMD_STR "${CONAN_INSTALL_CMD}")
 message(STATUS "Executing: ${CONAN_INSTALL_CMD_STR}")
 execute_process(COMMAND ${CONAN_INSTALL_CMD} RESULT_VARIABLE RET_CODE)
+
 if(NOT "${RET_CODE}" STREQUAL "0")
     # break cmake execution
     message(FATAL_ERROR "Failed to setup dependencies with conan: ${RET_CODE}")
