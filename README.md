@@ -1,6 +1,6 @@
 # Cmake common utils
 
-Cmake helpers. Tested with cmake 3.12
+Cmake helpers. Tested with cmake 3.13
 
 ## List of helpers
 
@@ -16,7 +16,7 @@ Usage: `make clang-static-analyzer`
 
 ### ClangTidy
 
-Add helper to run clang tidy.
+Add helper to run clang tidy. Searches for `clang-tidy` binary.
 
 ```cmake
 include(ClangTidy)
@@ -68,10 +68,21 @@ include(PreferGoldLinker)
 
 Used `<project root>/doc/Doxyfile.in` as project configuration.
 
-### SetupConan
+### Conan
 
-Helper to setup dependencies with conan package manager. On configuration stage toolchain is passed to `conan install ...` command. This way the one can get dependencies setup just by executing cmake configuration, e.g. `cmake ..`
+Helper to manage with conan package manager. Taken from https://github.com/conan-io/cmake-conan (ver 0.14)
 
 ```cmake
-include(SetupConan)
+# Manage dependencies with Conan
+include(Conan)
+conan_check(VERSION 1.20.0 REQUIRED)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}")
+conan_add_remote(NAME bincrafters INDEX 1
+            URL https://api.bintray.com/conan/bincrafters/public-conan)
+conan_add_remote(NAME catchorg INDEX 2
+            URL https://api.bintray.com/conan/catchorg/Catch2)
+conan_cmake_run(REQUIRES Catch2/2.6.0@catchorg/stable boost_variant/1.69.0@bincrafters/stable
+                BASIC_SETUP CMAKE_TARGETS
+                GENERATORS cmake_find_package
+                BUILD missing)
 ```

@@ -3,8 +3,8 @@
 # Setup clang-tidy target (enabled if toolchain is clang)
 message(STATUS "Setup target: clang-tidy")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    find_program(CLANG_TIDY_EXE NAMES "clang-tidy-7" PATHS /usr/bin)
-    find_program(RUN_CLANG_TIDY_EXE NAMES "run-clang-tidy.py" PATHS /usr/lib/llvm-7/share/clang)
+    find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+    find_program(RUN_CLANG_TIDY_EXE NAMES "run-clang-tidy.py")
 
     if (NOT CLANG_TIDY_EXE)
         message(WARNING "clang-tidy not found!")
